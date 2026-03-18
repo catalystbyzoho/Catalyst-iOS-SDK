@@ -8,6 +8,16 @@
 | Version | `version` | String | ✅ Yes | — | "1.0.0", etc. | Schema version of the configuration |
 | View Items | `tb_view_items` | Object | ✅ Yes | — | — | Container object holding all TopBar view components |
 
+## 2) tb_view_items Schema
+
+> **TODO:** This section has not yet been converted from its source image.
+
+## 3) selected_tabs Schema
+
+| Key | JSON Key | JSON Type | Mandatory | Default | Accepted Values | Description |
+|-----|----------|-----------|-----------|---------|-----------------|-------------|
+| Item IDs | `item_ids` | Array\<String\> | ✅ Yes | — | Unique identifiers of selected tabs (e.g., `HOME`, `MEETINGS`, `Custom_1`, `DEALS`) | Ordered list of selected tab module IDs; values must be unique. |
+
 ## 4) item_organiser Root Schema
 
 | Key | JSON Key | JSON Type | Mandatory | Default | Accepted Values | Description |
