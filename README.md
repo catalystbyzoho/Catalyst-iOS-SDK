@@ -52,6 +52,16 @@ Metadata caching - Essential metadata are cached to avoid unnecessary API calls.
 
 The mobile SDK takes care of the above, so that the developers can focus only on the UI components of the mobile app.
 
+## 1) Root Schema
+
+| Key | JSON Key | JSON Type | Mandatory | Default | Accepted Values | Description |
+|-----|----------|-----------|-----------|---------|-----------------|-------------|
+| ID | `id` | String | ✅ Yes | — | Any non-empty string (e.g., `TAB_BAR_CONFIG`) | Unique identifier for the tab bar configuration. |
+| Version | `version` | String | ✅ Yes | — | Version string (e.g., `1.0`) | Schema/config version. |
+| Configurations | `configurations` | Object | ✅ Yes | — | Object | Global tab bar behavior/settings container. |
+| Selected Tabs | `selected_tabs` | Object | ✅ Yes | — | Object | Defines the tabs selected for the bar. |
+| Item Organiser | `item_organiser` | Object | ✅ Yes | — | Object | Organises dropdown, quick actions, profile, and related behavior. |
+
 ## ⬇️ Installation
 Catalyst is available through CocoaPods. To install it, simply add the following line to your Podfile:
 
