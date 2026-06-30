@@ -651,6 +651,48 @@ extension Router {
             }
         }
     }
+
+    func isObjectAvailable( bucketName : String, fileName : String, versionId : String?, completion : @escaping ( Result< Bool, ZCatalystError > ) -> Void )
+    {
+        let requestBuilder = URLRequestBuilder()
+        let route = StratusAPI.isObjectAvailable( fileName )
+        requestBuilder.buildStratusRequest( from: route, bucketName: bucketName, fileName: fileName, versionId: versionId ) { result in
+            switch result
+            {
+            case .success( let request ):
+                let session = URLSession( configuration: .default )
+                session.dataTask( with: request ) { _, response, error in
+                    if let httpResp = response as? HTTPURLResponse
+                    {
+                        let code = httpResp.statusCode
+                        if ( 200 ... 299 ).contains( code )
+                        {
+                            completion( .success( true ) )
+                        }
+                        else if code == 404
+                        {
+                            completion( .success( false ) )
+                        }
+                        else
+                        {
+                            completion( .error( ZCatalystError.networkError( code : "\( code )", message : "isObjectAvailable failed with status \( code )", details : nil ) ) )
+                        }
+                    }
+                    else if let error = error
+                    {
+                        completion( .error( typeCastToZCatalystError( error ) ) )
+                    }
+                    else
+                    {
+                        completion( .error( ZCatalystError.processingError( code : ErrorCode.responseNil, message : "Response nil", details : nil ) ) )
+                    }
+                }.resume()
+            case .error( let error ):
+                ZCatalystLogger.logError( message : "Error Occurred : \( error.description )" )
+                completion( .error( error ) )
+            }
+        }
+    }
     
     private func download( urlRequest: URLRequest, completion: @escaping ( Result< URL, ZCatalystError > ) -> Void )
     {

@@ -155,7 +155,8 @@ public struct CatalystConstants
     static let success = "success"
     static let status = "status"
     static let NotAvailable = "NA"
-    static let SDK_NAME = "ZC_iOSSDK"
+    static let SDK_NAME = "Zoho Catalyst IOS SDK"
+    static let SDK_VERSION="3.0.1"
 }
 
 public struct MockValue

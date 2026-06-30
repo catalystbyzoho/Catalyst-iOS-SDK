@@ -153,13 +153,18 @@ public class ZCatalystApp
         return ZCatalystFunction( identifier : name )
     }
     
-    public func getDataStoreInstance(tableIdentifier : String) -> ZCatalystDataStore
+    public func getDataStoreInstance() -> ZCatalystDataStore
     {
-        return ZCatalystDataStore(tableIdentifier: tableIdentifier)
+        return ZCatalystDataStore()
     }
     public func execute( query : ZCatalystSelectQuery, completion: @escaping (Result<[ [ String : Any ] ], ZCatalystError>) -> Void)
     {
-        APIHandler().executeZCQL( query : query.query, completion : completion )
+        APIHandler().executeZCQL( query : query.query, isOLAP: false, completion : completion )
+    }
+    
+    public func executeOLAPQuery( query : ZCatalystSelectQuery, completion: @escaping (Result<[ [ String : Any ] ], ZCatalystError>) -> Void)
+    {
+        APIHandler().executeZCQL( query : query.query, isOLAP: true, completion : completion )
     }
     
     public func newUser( firstName : String, email : String ) -> ZCatalystUser

@@ -11,9 +11,9 @@ public class ZCatalystObject : ZCatalystEntity
 {
     public internal( set ) var bucketName : String = MockValue.string
     public internal( set ) var fileName : String
-    public internal( set ) var size : Int64
+    public internal( set ) var size : Int64?
     public internal( set ) var type : `Type`
-    public internal( set ) var lastModifiedTime : String
+    public internal( set ) var lastModifiedTime : String?
     public internal( set ) var metaData : [ String : String ]
     public internal( set ) var contentType : String?
     public internal( set ) var versionId : String?
@@ -34,12 +34,12 @@ public class ZCatalystObject : ZCatalystEntity
     {
         let container = try decoder.container( keyedBy : CodingKeys.self )
         self.fileName = try container.decode( String.self, forKey : .fileName )
-        self.size = try container.decode( Int64.self, forKey : .size )
+        self.size = try container.decodeIfPresent( Int64.self, forKey : .size )
         self.type = try container.decodeIfPresent( `Type`.self, forKey: .objectType) ?? .file
         self.metaData = try container.decodeIfPresent( [ String : String ].self, forKey: .metaData) ?? [:]
         self.contentType = try container.decodeIfPresent( String.self, forKey: .contentType)
         self.versionId = try container.decodeIfPresent( String.self, forKey: .versionId)
-        self.lastModifiedTime = try container.decode( String.self, forKey: .lastModified)
+        self.lastModifiedTime = try container.decodeIfPresent( String.self, forKey: .lastModified)
         apiHandler=APIHandler()
     }
     

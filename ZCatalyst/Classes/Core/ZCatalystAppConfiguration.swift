@@ -92,11 +92,40 @@ public struct ZCatalystAppConfiguration : Decodable
     }
     
     private static func defaultUserAgent() -> String {
-        if let packageName = Bundle.main.infoDictionary?[kCFBundleNameKey as String] as? String,
-           let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String {
-            return "\(CatalystConstants.SDK_NAME) \(packageName)/\(appVersion)/\(UIDevice.current.name)"
+        // Get device information
+        let device = UIDevice.current
+        let osVersion = device.systemVersion
+        let osName = "iOS"
+        
+        // Get device type (iPhone/iPad)
+        let deviceType: String
+        switch device.userInterfaceIdiom {
+        case .phone:
+            deviceType = "iPhone"
+        case .pad:
+            deviceType = "iPad"
+        default:
+            deviceType = "iOS Device"
         }
-        return "\(CatalystConstants.SDK_NAME) UnknownApp/UnknownVersion/\(UIDevice.current.name)"
+        
+        var systemInfo = utsname()
+        uname(&systemInfo)
+        let modelCode = withUnsafePointer(to: &systemInfo.machine) {
+            $0.withMemoryRebound(to: CChar.self, capacity: 1) {
+                String(validatingUTF8: $0) ?? "Unknown"
+            }
+        }
+        
+
+        let timeZone = TimeZone.current.identifier
+
+        let locale = Locale.current.identifier
+ 
+        let platformInfo = "\(deviceType); CPU \(deviceType) OS \(osVersion.replacingOccurrences(of: ".", with: "_")) like Mac OS X"
+      
+        let sdkVersion = CatalystConstants.SDK_VERSION
+        
+        return "\(CatalystConstants.SDK_NAME)/\(sdkVersion) (\(platformInfo)) Mobile; UTZ:\(timeZone); L:\(locale); DT:\(osName)/\(deviceType); D:\(modelCode)"
     }
     
     enum CodingKeys : String, CodingKey
