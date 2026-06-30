@@ -41,7 +41,23 @@ public class ZCatalystBucket {
     {
         apiHandler.getObject( bucketName : name, objectKey : objectKey, versionId : versionId, completion : completion )
     }
-    
+
+    /// Checks whether an object exists in the bucket using an HTTP HEAD request.
+    /// Returns `true` for 2xx, `false` for 404, and surfaces other status codes as errors.
+    public func isObjectAvailable( objectKey : String, versionId : String? = nil,
+                                   completion : @escaping ( Result< Bool, ZCatalystError > ) -> Void )
+    {
+        apiHandler.isObjectAvailable( bucketName : name, fileName : objectKey, versionId : versionId, completion : completion )
+    }
+
+    /// Downloads the actual object bytes from the bucket. On success, the closure
+    /// receives the local file URL where the data was written.
+    public func getObject( objectKey : String, versionId : String? = nil,
+                           completion : @escaping ( Result< URL, ZCatalystError > ) -> Void )
+    {
+        apiHandler.downloadObject( bucketName : name, fileName : objectKey, versionId : versionId, fromCache : false, completion : completion )
+    }
+
     public func deleteObject( objectKey : String, versionId : String? = nil, completion : @escaping (   ZCatalystError?  ) -> Void )
     {
         apiHandler.deleteObject( bucketName : name, fileName:  objectKey, versionId : versionId, completion : completion )

@@ -15,7 +15,6 @@ struct PayloadFactory
         switch api
         {
         case .search(let text, let coloumn, let select,let order, let start, let end):
-            print("")
             var bodyJSON : [ String : Any ] = [ PayloadConstants.search :text,
                                                 PayloadConstants.searchTableColumns : coloumn,
                                                 PayloadConstants.start : start!,

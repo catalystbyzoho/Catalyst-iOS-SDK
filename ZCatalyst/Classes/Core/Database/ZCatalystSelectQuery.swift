@@ -13,18 +13,18 @@ public struct Column
     var function : Function?
     var names : Set< String >?
     
-    init( name : String )
+    public init( name : String )
     {
         self.name = name
     }
     
-    init( function : Function, name : String )
+    public init( function : Function, name : String )
     {
         self.function = function
         self.name = name
     }
     
-    init( function : Function, names : Set< String > )
+    public init( function : Function, names : Set< String > )
     {
         self.function = function
         self.names = names
@@ -64,33 +64,30 @@ public struct ZCatalystSelectQuery
             return self
         }
         
-        public mutating func from( tableName : String ) -> Builder
-        {
-            self.query += "FROM \( tableName ) "
+        public mutating func from(tableName: String, alias: String?) -> Builder {
+            if let alias = alias, !alias.isEmpty {
+                self.query += "FROM \(tableName) AS \(alias) "
+            } else {
+                self.query += "FROM \(tableName) "
+            }
             return self
         }
         
-        public mutating func alias( tableName : String ) -> Builder
+        public mutating func `where`( column : String, comparator : Comparator, value : Any ) -> Builder
         {
-            self.query += "AS \( tableName ) "
+            self.query += "WHERE \( column ) \( comparator.rawValue ) \( formatValue(value) ) "
             return self
         }
         
-        public mutating func `where`( column : String, comparator : Comparator, value : String ) -> Builder
+        public mutating func and( column : String, comparator : Comparator, value : Any ) -> Builder
         {
-            self.query += "WHERE \( column ) \( comparator ) \( value ) "
+            self.query += "AND \( column ) \( comparator.rawValue ) \( formatValue(value) ) "
             return self
         }
         
-        public mutating func and( column : String, comparator : Comparator, value : String ) -> Builder
+        public mutating func or( column : String, comparator : Comparator, value : Any ) -> Builder
         {
-            self.query += "AND \( column ) \( comparator ) \( value ) "
-            return self
-        }
-        
-        public mutating func or( column : String, comparator : Comparator, value : String ) -> Builder
-        {
-            self.query += "OR \( column ) \( comparator ) \( value ) "
+            self.query += "OR \( column ) \( comparator.rawValue ) \( formatValue(value) ) "
             return self
         }
         
@@ -106,21 +103,29 @@ public struct ZCatalystSelectQuery
             return self
         }
         
-        public mutating func innerJoin( tableName : String ) -> Builder
+        public mutating func innerJoin( tableName : String , alias : String?) -> Builder
         {
-            self.query += "INNER JOIN \( tableName ) "
+            if let alias = alias, !alias.isEmpty {
+                self.query += "INNER JOIN \(tableName) AS \(alias) "
+            } else {
+                self.query += "INNER JOIN \( tableName ) "
+            }
             return self
         }
         
-        public mutating func leftJoin( tableName : String ) -> Builder
+        public mutating func leftJoin( tableName : String, alias : String? ) -> Builder
         {
-            self.query += "LEFT JOIN \( tableName ) "
+            if let alias = alias, !alias.isEmpty {
+                self.query += "LEFT JOIN \(tableName) AS \(alias) "
+            } else {
+                self.query += "LEFT JOIN \( tableName ) "
+            }
             return self
         }
         
         public mutating func on( joinColumn1 : String, comparator : Comparator, joinColumn2 : String ) -> Builder
         {
-            self.query += "ON \( joinColumn1 ) \( comparator ) \( joinColumn2 ) "
+            self.query += "ON \( joinColumn1 ) \( comparator.rawValue ) \( joinColumn2 ) "
             return self
         }
         
@@ -136,7 +141,14 @@ public struct ZCatalystSelectQuery
         
         public func build() -> ZCatalystSelectQuery
         {
+            print(query)
             return ZCatalystSelectQuery( builder : self )
+        }
+        func formatValue(_ value: Any) -> String {
+            if value is String {
+                return "'\(value)'"
+            }
+            return "\(value)"
         }
         
         private func getColumnsAsString( columns : Set< Column > ) -> String
@@ -145,6 +157,7 @@ public struct ZCatalystSelectQuery
             var count = 0
             for column in columns
             {
+                count += 1
                 if let function = column.function
                 {
                     if let names = column.names
@@ -168,7 +181,6 @@ public struct ZCatalystSelectQuery
                 {
                     columnsAsString += ", "
                 }
-                count += 1
             }
             return columnsAsString
         }

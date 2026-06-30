@@ -438,7 +438,7 @@ struct APIHandler
     {
         do
         {
-            let payload = try ZCatalystDataStore.bulkInsert(rows: rows)
+            let payload = try ZCatalystTable.bulkInsert(rows: rows)
             let api = RowAPI.insert( json : payload, table : tableId )
             networkClient.request( api, session : URLSession.shared) { ( result ) in
                 switch result
@@ -473,7 +473,7 @@ struct APIHandler
     {
         do
         {
-            let payload = try ZCatalystDataStore.bulkInsert(rows: rows)
+            let payload = try ZCatalystTable.bulkInsert(rows: rows)
             let api = RowAPI.update( json : payload, table : tableId )
             networkClient.request( api, session : URLSession.shared) { ( result ) in
                 switch result
@@ -564,10 +564,10 @@ struct APIHandler
         }
     }
     
-    func executeZCQL(query: String, completion: @escaping (Result<[ [ String : Any ] ], ZCatalystError>) -> Void)
+    func executeZCQL(query: String, isOLAP: Bool, completion: @escaping (Result<[ [ String : Any ] ], ZCatalystError>) -> Void)
     {
         
-        let api = QueryAPI.execute(query: query)
+        let api = QueryAPI.execute(query: query, isOLAP: isOLAP)
         networkClient.request(api, session: URLSession.shared) { (result) in
             switch result
             {
@@ -778,6 +778,11 @@ struct APIHandler
     func deleteObject( bucketName : String, fileName : String, versionId : String? = nil, completion : @escaping (ZCatalystError? ) -> Void )
     {
         networkClient.delete( bucketName : bucketName, fileName : fileName, versionId: versionId, completion : completion )
+    }
+
+    func isObjectAvailable( bucketName : String, fileName : String, versionId : String? = nil, completion : @escaping ( Result< Bool, ZCatalystError > ) -> Void )
+    {
+        networkClient.isObjectAvailable( bucketName : bucketName, fileName : fileName, versionId : versionId, completion : completion )
     }
     func uploadObject( bucketName: String, fileRefId: String, filePath : String?, fileName : String?, data : Data?, shouldCompress: Bool = false, fileUploadDelegate: ZCatalystFileUploadDelegate )
     {
@@ -1016,6 +1021,8 @@ extension StratusAPI : APIEndPointConvertable
             return "\( fileName )"
         case .deleteObject( let fileName ):
             return "\( fileName )"
+        case .isObjectAvailable( let fileName ):
+            return "\( fileName )"
         case .deleteObjects( _, _ ):
             return "\( APIHandlerConstants.bucket )/\( APIHandlerConstants.object )"
         case .deletePath( _ ):
@@ -1039,6 +1046,8 @@ extension StratusAPI : APIEndPointConvertable
             return .delete
         case .deletePath( _ ):
             return .delete
+        case .isObjectAvailable( _ ):
+            return .head
         }
     }
     
@@ -1055,7 +1064,7 @@ extension StratusAPI : APIEndPointConvertable
             return Payload( bodyParameters: body, urlParameters: parameters )
         case .deletePath(parameters: let parameters) :
             return Payload( urlParameters: parameters )
-        case .uploadObject(let fileName, let headers):
+        case .uploadObject(_, let headers):
             return Payload(headers: headers)
         default :
             return nil
@@ -1254,8 +1263,8 @@ extension QueryAPI: APIEndPointConvertable
     
     var payload: Payload? {
         switch self{
-        case .execute(let query):
-            return Payload(bodyParameters: [APIHandlerConstants.query:query], urlParameters: nil, headers: nil, bodyData: nil)
+        case .execute(let query, let isOLAP):
+            return Payload(bodyParameters: [APIHandlerConstants.query:query, APIHandlerConstants.olap:isOLAP], urlParameters: nil, headers: nil, bodyData: nil)
         }
     }
 }
@@ -1364,5 +1373,6 @@ public struct APIHandlerConstants
     static let versionId = "version_id"
     static let objectKey = "object_key"
     static let key = "key"
+    static let olap = "OLAP"
 }
 

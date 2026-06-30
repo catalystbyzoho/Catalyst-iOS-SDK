@@ -89,6 +89,7 @@ enum StratusAPI
     case deleteObject( String )
     case deleteObjects( params: Parameters?, body : Parameters? )
     case deletePath( parameters: Parameters? )
+    case isObjectAvailable( String )
 }
 
 enum FunctionsAPI
@@ -98,7 +99,7 @@ enum FunctionsAPI
 
 enum QueryAPI
 {
-    case execute(query: String)
+    case execute(query: String, isOLAP:Bool)
 }
 
 enum RowAPI

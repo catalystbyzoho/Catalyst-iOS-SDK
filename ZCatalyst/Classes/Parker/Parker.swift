@@ -37,6 +37,8 @@ internal protocol NetworkRequestable
     func upload( bucketName: String, fileRefId: String, filePath : String?, fileName : String?, data : Data?, shouldCompress: Bool, fileUploadDelegate : ZCatalystFileUploadDelegate )
     
     func download( bucketName: String, fileName: String, fileRefId: String, versionId : String?, fromCache: Bool, fileDownloadDelegate : ZCatalystFileDownloadDelegate )
+
+    func isObjectAvailable( bucketName: String, fileName: String, versionId : String?, completion : @escaping ( Result< Bool, ZCatalystError > ) -> Void )
 }
 
 struct Parker: NetworkRequestable
@@ -83,12 +85,12 @@ struct Parker: NetworkRequestable
         let session = URLSession( configuration : configuration )
         return Router.requestData(route, session: session, completion: completion)
     }
-    
+
     func upload( fileRefId : String, filePath : URL?, fileName : String?, fileData : Data?, url : APIEndPointConvertable, fileUploadDelegate : ZCatalystFileUploadDelegate )
     {
-        router.upload(url, fileRefId : fileRefId, filePath : filePath, fileName : fileName, fileData : fileData, fileUploadDelegate : fileUploadDelegate)
+        router.upload( url, fileRefId : fileRefId, filePath : filePath, fileName : fileName, fileData : fileData, fileUploadDelegate : fileUploadDelegate )
     }
-    
+
     func upload( filePath : URL?, fileName : String?, fileData : Data?, url : APIEndPointConvertable, completion : @escaping ( Result< Data, ZCatalystError > ) -> Void )
     {
         router.upload( url, filePath : filePath, fileName : fileName, fileData : fileData) { ( result ) in
@@ -118,6 +120,11 @@ struct Parker: NetworkRequestable
     func delete( bucketName : String, fileName : String, versionId : String? = nil, completion : @escaping (  ZCatalystError? ) -> Void )
     {
         router.deleteObject( bucketName: bucketName, fileName : fileName, versionId: versionId, completion : completion )
+    }
+
+    func isObjectAvailable( bucketName : String, fileName : String, versionId : String? = nil, completion : @escaping ( Result< Bool, ZCatalystError > ) -> Void )
+    {
+        router.isObjectAvailable( bucketName : bucketName, fileName : fileName, versionId : versionId, completion : completion )
     }
     
     
